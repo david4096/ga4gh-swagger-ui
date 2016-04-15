@@ -1405,7 +1405,7 @@
   cursor: pointer;
 }
 .swagger-section #header {
-  background-color: #89bf04;
+  background-color: #000000;
   padding: 9px 14px 19px 14px;
   height: 23px;
   min-width: 775px;
@@ -1439,7 +1439,7 @@
   padding: 6px 8px;
   font-size: 0.9em;
   color: white;
-  background-color: #547f00;
+  background-color: #1c75bc;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   -o-border-radius: 4px;
@@ -1449,7 +1449,7 @@
 }
 .swagger-section #explore:hover,
 .swagger-section #auth_container .authorize__btn:hover {
-  background-color: #547f00;
+  background-color: #4faedd;
 }
 .swagger-section #header #logo {
   font-size: 1.5em;
