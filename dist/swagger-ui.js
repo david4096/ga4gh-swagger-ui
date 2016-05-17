@@ -20880,7 +20880,8 @@ SwaggerUi.Views.ParameterView = Backbone.View.extend({
 
   initialize: function(){
     Handlebars.registerHelper('isArray', function(param, opts) {
-      if (param.type.toLowerCase() === 'array' || param.allowMultiple) {
+      var paramType = param.type && param.type.toLowerCase();
+      if (paramType === 'array' || param.allowMultiple) {
         return opts.fn(this);
       } else {
         return opts.inverse(this);
@@ -21089,7 +21090,7 @@ SwaggerUi.partials.signature = (function () {
 
   // copy-pasted from swagger-js
   var getInlineModel = function(inlineStr) {
-    if(/^Inline Model \d+$/.test(inlineStr)) {
+    if(/^Inline Model \d+$/.test(inlineStr) && this.inlineModels) {
       var id = parseInt(inlineStr.substr('Inline Model'.length).trim(),10); //
       var model = this.inlineModels[id];
       return model;
@@ -21318,6 +21319,14 @@ SwaggerUi.partials.signature = (function () {
       var type = schema.type || 'object';
       var isArray = type === 'array';
 
+      if (!_.isUndefined(schema.description)) {
+        html += ': ' + '<span class="propDesc">' + schema.description + '</span>';
+      }
+
+      if (schema.enum) {
+        html += ' = <span class="propVals">[\'' + schema.enum.join('\', \'') + '\']</span>';
+      }
+
       if (isArray) {
         if (_.isPlainObject(schema.items) && !_.isUndefined(schema.items.type)) {
           type = schema.items.type;
@@ -21467,15 +21476,12 @@ SwaggerUi.partials.signature = (function () {
               var requiredClass = propertyIsRequired ? 'required' : '';
               var html = '<span class="propName ' + requiredClass + '">' + name + '</span> (';
               var model;
-              var propDescription;
 
               // Allow macro to set the default value
               cProperty.default = modelPropertyMacro(cProperty);
 
               // Resolve the schema (Handle nested schemas)
               cProperty = resolveSchema(cProperty);
-
-              propDescription = property.description || cProperty.description;
 
               // We need to handle property references to primitives (Issue 339)
               if (!_.isUndefined(cProperty.$ref)) {
@@ -21498,14 +21504,6 @@ SwaggerUi.partials.signature = (function () {
               }
 
               html += ')';
-
-              if (!_.isUndefined(propDescription)) {
-                html += ': ' + '<span class="propDesc">' + propDescription + '</span>';
-              }
-
-              if (cProperty.enum) {
-                html += ' = <span class="propVals">[\'' + cProperty.enum.join('\', \'') + '\']</span>';
-              }
 
               return '<div' + (property.readOnly ? ' class="readOnly"' : '') + '>' + primitiveToOptionsHTML(cProperty, html);
             }).join(',</div>');
@@ -21962,7 +21960,7 @@ SwaggerUi.partials.signature = (function () {
   function getDescriptorByRef($ref, name, models, config) {
     var modelType = simpleRef($ref);
     var model = models[modelType] || {};
-    var type = model.type || 'object';
+    var type = model.definition && model.definition.type ? model.definition.type : 'object';
     name = name || model.name;
 
     if (config.modelsToIgnore.indexOf($ref) > -1) {
